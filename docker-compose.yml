@@ -1,0 +1,10 @@
+services:
+  webserver:
+    image: nginx:latest
+    ports:
+      - 8080:80
+    restart: always
+    volumes:
+      - C:\Users\mail\Desktop\mod109\html:/etc/nginx/conf.d/
+    networks:
+
