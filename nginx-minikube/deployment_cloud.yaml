@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp-deployment
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+      - name: webapp
+        image: nginxinc/nginx-unprivileged
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  type: ClusterIP
+  selector:
+    app: webapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+#  nodePort: 30100kind: Service
+apiVersion: v1
+metadata:
+  name: webapp-service
+  labels:
+    app: webapp
+    app.kubernetes.io/part-of: webapp
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+  selector:
+    app: webapp
+---
+kind: Route
+apiVersion: route.openshift.io/v1
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+    app.kubernetes.io/part-of: webapp
+spec:
+  to:
+    kind: Service
+    name: webapp-service
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
